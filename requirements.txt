@@ -1,0 +1,5 @@
+sqlparse
+networkx
+pyvis
+plotly
+weasyprint
