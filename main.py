@@ -3,7 +3,7 @@ import os
 from sql_analyzer import extract_tables_from_sql
 from python_interpreter import extract_sql_from_python
 from graph_builder import build_graph
-from visualizer import create_interactive_visualization
+from visualizer import create_interactive_visualization, export_html_to_pdf
 
 def main():
     parser = argparse.ArgumentParser(
@@ -15,13 +15,19 @@ def main():
     )
     parser.add_argument(
         "-o", "--output",
-        default="lineage.html",
-        help="El nombre del archivo de salida HTML (por defecto: lineage.html)."
+        help="El nombre del archivo de salida (sin extensión)."
+    )
+    parser.add_argument(
+        "-f", "--format",
+        default="html",
+        choices=['html', 'pdf'],
+        help="El formato de salida (html o pdf)."
     )
     args = parser.parse_args()
 
     input_file = args.input_file
-    output_file = args.output
+    output_base_name = args.output or "lineage"
+    output_format = args.format
 
     if not os.path.exists(input_file):
         print(f"Error: El archivo '{input_file}' no fue encontrado.")
@@ -52,9 +58,17 @@ def main():
         return
 
     graph = build_graph(relations)
-    create_interactive_visualization(graph, output_filename=output_file)
 
-    print(f"¡Diagrama de linaje generado con éxito! Ab_r_e '{output_file}' en tu navegador.")
+    html_file = f"{output_base_name}.html"
+    create_interactive_visualization(graph, output_filename=html_file)
+
+    if output_format == 'pdf':
+        pdf_file = f"{output_base_name}.pdf"
+        export_html_to_pdf(html_file, pdf_file)
+        os.remove(html_file) # Limpiar el archivo HTML intermedio
+        print(f"¡Diagrama de linaje generado con éxito! Guardado como '{pdf_file}'.")
+    else:
+        print(f"¡Diagrama de linaje generado con éxito! Abre '{html_file}' en tu navegador.")
 
 if __name__ == "__main__":
     main()

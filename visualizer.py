@@ -1,4 +1,6 @@
 from pyvis.network import Network
+from weasyprint import HTML
+import os
 
 def create_interactive_visualization(graph, output_filename="lineage.html"):
     """
@@ -8,7 +10,7 @@ def create_interactive_visualization(graph, output_filename="lineage.html"):
         graph (networkx.DiGraph): El grafo a visualizar.
         output_filename (str): El nombre del archivo HTML de salida.
     """
-    net = Network(notebook=True, directed=True)
+    net = Network(notebook=True, directed=True, cdn_resources='in_line')
     net.from_nx(graph)
 
     # Opciones de personalización
@@ -34,10 +36,25 @@ def create_interactive_visualization(graph, output_filename="lineage.html"):
         "hideNodesOnDrag": false
       },
       "physics": {
-        "enabled": true,
-        "solver": "repulsion"
+        "enabled": false
       }
     }
     """)
 
     net.show(output_filename)
+
+def export_html_to_pdf(html_file, pdf_file):
+    """
+    Convierte un archivo HTML a PDF.
+
+    Args:
+        html_file (str): La ruta al archivo HTML de entrada.
+        pdf_file (str): La ruta al archivo PDF de salida.
+    """
+    if not os.path.exists(html_file):
+        print(f"Error: El archivo HTML '{html_file}' no fue encontrado.")
+        return
+
+    print(f"Convirtiendo {html_file} a {pdf_file}...")
+    HTML(html_file).write_pdf(pdf_file)
+    print("Conversión a PDF completada.")
